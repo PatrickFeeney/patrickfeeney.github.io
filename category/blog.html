@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>SINCERE: Supervised Information Noise-Contrastive Estimation REvisited - Patrick Feeney</title>
+    <title>blog - Patrick Feeney</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -9,21 +9,16 @@
 
 
 
-<link rel="canonical" href="https://patrickfeeney.github.io/sincere-supervised-information-noise-contrastive-estimation-revisited.html">
 
-        <meta name="author" content="Patrick Feeney" />
-        <meta name="keywords" content="news" />
-        <meta name="description" content="Under review for ICML 2024. arXiv version. The information noise-contrastive estimation (InfoNCE) loss function provides the basis of many self-supervised deep learning methods due to its strong empirical results and theoretic motivation. Previous work suggests a supervised contrastive (SupCon) loss to extend InfoNCE to learn from available class labels. However …" />
+    <meta name="author" content="Patrick Feeney" />
+    <meta name="keywords" content="blog" />
 
+    <!-- Open Graph tags -->
         <meta property="og:site_name" content="Patrick Feeney" />
-        <meta property="og:type" content="article"/>
-        <meta property="og:title" content="SINCERE: Supervised Information Noise-Contrastive Estimation REvisited"/>
-        <meta property="og:url" content="https://patrickfeeney.github.io/sincere-supervised-information-noise-contrastive-estimation-revisited.html"/>
-        <meta property="og:description" content="Under review for ICML 2024. arXiv version. The information noise-contrastive estimation (InfoNCE) loss function provides the basis of many self-supervised deep learning methods due to its strong empirical results and theoretic motivation. Previous work suggests a supervised contrastive (SupCon) loss to extend InfoNCE to learn from available class labels. However …"/>
-        <meta property="article:published_time" content="2024-03-11" />
-            <meta property="article:section" content="papers" />
-            <meta property="article:tag" content="news" />
-            <meta property="article:author" content="Patrick Feeney" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Patrick Feeney"/>
+        <meta property="og:url" content="https://patrickfeeney.github.io"/>
+        <meta property="og:description" content="Patrick Feeney"/>
 
 
 
@@ -37,8 +32,8 @@
         <link href="https://patrickfeeney.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
               title="Patrick Feeney ATOM Feed"/>
 
-        <link href="https://patrickfeeney.github.io/feeds/papers.atom.xml" type="application/atom+xml" rel="alternate"
-              title="Patrick Feeney papers ATOM Feed"/>
+        <link href="https://patrickfeeney.github.io/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Patrick Feeney blog ATOM Feed"/>
 
 </head>
 <body>
@@ -60,13 +55,13 @@ Patrick Feeney            </a>
                          <li><a href="https://patrickfeeney.github.io/pages/cv.html">
                              CV
                           </a></li>
-                        <li >
+                        <li class="active">
                             <a href="https://patrickfeeney.github.io/category/blog.html">Blog</a>
                         </li>
                         <li >
                             <a href="https://patrickfeeney.github.io/category/courses.html">Courses</a>
                         </li>
-                        <li class="active">
+                        <li >
                             <a href="https://patrickfeeney.github.io/category/papers.html">Papers</a>
                         </li>
             </ul>
@@ -84,47 +79,14 @@ Patrick Feeney            </a>
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
-    <section id="content">
-        <article>
-            <header class="page-header">
-                <h1>
-                    <a href="https://patrickfeeney.github.io/sincere-supervised-information-noise-contrastive-estimation-revisited.html"
-                       rel="bookmark"
-                       title="Permalink to SINCERE: Supervised Information Noise-Contrastive Estimation REvisited">
-                        SINCERE: Supervised Information Noise-Contrastive Estimation REvisited
-                    </a>
-                </h1>
-            </header>
-            <div class="entry-content">
-                <div class="panel">
-                    <div class="panel-body">
-<footer class="post-info">
-    <span class="label label-default">Date</span>
-    <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2024-03-11T10:00:00-05:00"> Mon 11 March 2024</time>
-    </span>
-
-
-
-
-
-<span class="label label-default">Tags</span>
-	<a href="https://patrickfeeney.github.io/tag/news.html">news</a>
-    
-</footer><!-- /.post-info -->                    </div>
+            <article>
+                <h2><a href="https://patrickfeeney.github.io/learning-embedding-spaces-with-metrics-via-contrastive-learning.html">Learning Embedding Spaces with Metrics via Contrastive Learning</a></h2>
+                <div class="summary"><p><em>Written for the blogpost track of the <a href="https://gram-workshop.github.io/index.html">ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024</a>.</em></p>
+<p>Contrastive learning encompasses a variety of methods that learn a constrained embedding space to solve a task. The embedding space is constrained such that a chosen metric, a function that measures …</p>
+                    <a class="btn btn-default btn-xs" href="https://patrickfeeney.github.io/learning-embedding-spaces-with-metrics-via-contrastive-learning.html">more ...</a>
                 </div>
-                <p>Under review for ICML 2024.
-<a href="https://arxiv.org/abs/2309.14277">arXiv version</a>.</p>
-<p>The information noise-contrastive estimation (InfoNCE) loss function provides the basis of many self-supervised deep learning methods due to its strong empirical results and theoretic motivation.
-Previous work suggests a supervised contrastive (SupCon) loss to extend InfoNCE to learn from available class labels.
-However, in this work we find that the prior SupCon loss formulation has questionable justification because it can encourage some images from the same class to repel one another in the learned embedding space.
-We propose the Supervised InfoNCE REvisited (SINCERE) loss as a theoretically-justified supervised extension of InfoNCE that never causes images from the same class to repel one another.
-Experiments show that SINCERE leads to better separation of embeddings from different classes while delivering competitive classification accuracy for supervised and transfer learning.
-We further show an information-theoretic bound that relates SINCERE loss to the symmeterized KL divergence between data-generating distributions for a target class and all other classes. </p>
-            </div>
-            <!-- /.entry-content -->
-        </article>
-    </section>
+            </article>
+            <hr/>
 
         </div>
         <div class="col-sm-3" id="sidebar">

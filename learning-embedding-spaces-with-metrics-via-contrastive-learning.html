@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Learning Embedding Spaces with Metrics via Contrastive Learning - Patrick Feeney</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://patrickfeeney.github.io/learning-embedding-spaces-with-metrics-via-contrastive-learning.html">
+
+        <meta name="author" content="Patrick Feeney" />
+        <meta name="description" content="Written for the blogpost track of the ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024. Contrastive learning encompasses a variety of methods that learn a constrained embedding space to solve a task. The embedding space is constrained such that a chosen metric, a function that measures …" />
+
+        <meta property="og:site_name" content="Patrick Feeney" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Learning Embedding Spaces with Metrics via Contrastive Learning"/>
+        <meta property="og:url" content="https://patrickfeeney.github.io/learning-embedding-spaces-with-metrics-via-contrastive-learning.html"/>
+        <meta property="og:description" content="Written for the blogpost track of the ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024. Contrastive learning encompasses a variety of methods that learn a constrained embedding space to solve a task. The embedding space is constrained such that a chosen metric, a function that measures …"/>
+        <meta property="article:published_time" content="2024-06-28" />
+            <meta property="article:section" content="blog" />
+            <meta property="article:author" content="Patrick Feeney" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://patrickfeeney.github.io/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://patrickfeeney.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://patrickfeeney.github.io/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://patrickfeeney.github.io/theme/css/style.css" type="text/css"/>
+
+        <link href="https://patrickfeeney.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Patrick Feeney ATOM Feed"/>
+
+        <link href="https://patrickfeeney.github.io/feeds/blog.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Patrick Feeney blog ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://patrickfeeney.github.io/" class="navbar-brand">
+Patrick Feeney            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://patrickfeeney.github.io/pages/cv.html">
+                             CV
+                          </a></li>
+                        <li class="active">
+                            <a href="https://patrickfeeney.github.io/category/blog.html">Blog</a>
+                        </li>
+                        <li >
+                            <a href="https://patrickfeeney.github.io/category/courses.html">Courses</a>
+                        </li>
+                        <li >
+                            <a href="https://patrickfeeney.github.io/category/papers.html">Papers</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://patrickfeeney.github.io/learning-embedding-spaces-with-metrics-via-contrastive-learning.html"
+                       rel="bookmark"
+                       title="Permalink to Learning Embedding Spaces with Metrics via Contrastive Learning">
+                        Learning Embedding Spaces with Metrics via Contrastive Learning
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2024-06-28T10:00:00-05:00"> Fri 28 June 2024</time>
+    </span>
+
+
+
+
+
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><em>Written for the blogpost track of the <a href="https://gram-workshop.github.io/index.html">ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024</a>.</em></p>
+<p>Contrastive learning encompasses a variety of methods that learn a constrained embedding space to solve a task. The embedding space is constrained such that a chosen metric, a function that measures the distance between two embeddings, satisfies some desired property, usually that small distances imply a shared class. Contrastive learning underlies many self-supervised methods, such as MoCo <a href='#he_momentum_2020' id='ref-he_momentum_2020-1'>(He et al., 2020)</a>, <a href='#chen_empirical_2021' id='ref-chen_empirical_2021-1'>(Chen et al., 2021)</a>, SimCLR <a href='#chen_simple_2020' id='ref-chen_simple_2020-1'>(Chen et al., 2020)</a>, <a href='#chen_big_2020' id='ref-chen_big_2020-1'>(Chen et al., 2020)</a>, and BYOL <a href='#grill_bootstrap_2020' id='ref-grill_bootstrap_2020-1'>(Grill et al., 2020)</a>, as well as supervised methods such as SupCon <a href='#khosla_supervised_2020' id='ref-khosla_supervised_2020-1'>(Khosla et al., 2020)</a> and SINCERE <a href='#feeney_sincere_2024' id='ref-feeney_sincere_2024-1'>(Feeney and Hughes, 2024)</a>.</p>
+<p>In contrastive learning, there are two components that determine the constraints on the learned embedding space: the similarity function and the contrastive loss. The similarity function takes a pair of embedding vectors and quantifies how similar they are as a scalar. The contrastive loss determines which pairs of embeddings have similarity evaluated and how the resulting set of similarity values are used to measure error with respect to a task, such as classification. Backpropagating to minimize this error causes a model to learn embeddings that best satisfy the constraints induced by the similarity function and contrastive loss.</p>
+<p>This blog post examines how similarity functions and contrastive losses affect the learned embedding spaces. We first examine the different choices for similarity functions and contrastive losses. Then we conclude with a brief case study investigating the effects of different similarity functions on supervised contrastive learning.</p>
+<h2>Similarity Functions</h2>
+<p>A similarity function <span class="math">\(s(z_1, z_2): \mathbb{R}^d \times \mathbb{R}^d \rightarrow \mathbb{R}\)</span> maps a pair of <span class="math">\(d\)</span>-dimensional embedding vectors <span class="math">\(z_1\)</span> and <span class="math">\(z_2\)</span> to a real similarity value, with greater values indicating greater similarity. A temperature hyperparameter <span class="math">\(0 &lt; \tau \leq 1\)</span> is often included, via <span class="math">\(\frac{s(z_1, z_2)}{\tau}\)</span>, to scale a similarity function. If the similarity function has a range that is a subset of <span class="math">\(\mathbb{R}\)</span>, then <span class="math">\(\tau\)</span> can increase that range. <span class="math">\(\tau\)</span> is omitted for simplicity here.</p>
+<h3>Cosine Similarity</h3>
+<p>A common similarity function is cosine similarity</p>
+<div class="math">$$s(z_1, z_2) = \frac{z_1 \cdot z_2}{||z_1|| \cdot ||z_2||}.$$</div>
+<p>This function measures the cosine of the angle between <span class="math">\(z_1\)</span> and <span class="math">\(z_2\)</span> as a scalar in <span class="math">\([-1, 1]\)</span>. Cosine similarity violates the triangle inequality, making it the only similarity function discussed here that is not derived from a distance metric.</p>
+<h3>Negative Arc Length</h3>
+<p>The recently proposed negative arc length similarity function <a href='#koishekenov_geometric_2023' id='ref-koishekenov_geometric_2023-1'>(Koishekenov et al., 2023)</a> provides an analogue for cosine similarity that is a distance metric</p>
+<div class="math">$$s(z_1, z_2) = 1 - \frac{\text{arccos}(z_1 \cdot z_2)}{\pi}.$$</div>
+<p>This function assumes that <span class="math">\(||z_1|| = ||z_2|| = 1\)</span> which is a common normalization <a href='#le-khac_contrastive_2020' id='ref-le-khac_contrastive_2020-1'>(Le-Khac et al., 2020)</a> that restricts the embeddings to a hypersphere. The arc length <span class="math">\(\text{arccos}(z_1 \cdot z_2)\)</span> is a natural choice for comparing such vectors as it is the geodesic distance, or the length of the shortest path between <span class="math">\(z_1\)</span> and <span class="math">\(z_2\)</span> on the hypersphere. Subtracting the arc length converts the distance metric into a similarity function with range <span class="math">\([0, 1]\)</span>.</p>
+<h3>Negative Euclidean Distance</h3>
+<p>The negative Euclidean distance similarity function is simply</p>
+<div class="math">$$s(z_1, z_2) = -||z_1 - z_2||_2.$$</div>
+<p>Euclidean distance measures the shortest path in Euclidean space, making it the geodesic distance when <span class="math">\(z_1\)</span> and <span class="math">\(z_2\)</span> can take any value in <span class="math">\(\mathbb{R}^d\)</span>. In this case the similarity function has range <span class="math">\([-\infty, 0]\)</span>.</p>
+<p>The negative Euclidean distance can also be used with embeddings restricted to a hypersphere, resulting in range <span class="math">\([-2, 0]\)</span>. However, this is not the geodesic distance for the hypersphere as the path being measured is inside the sphere. The Euclidean distance will be less than the arc length unless <span class="math">\(z_1 = z_2\)</span>, in which case they both equal 0.</p>
+<h2>Contrastive Losses</h2>
+<p>A contrastive loss function maps a set of embeddings and a similarity function to a scalar value. Losses are written such that derivatives for backpropagation are taken with respect to the embedding <span class="math">\(z\)</span>.</p>
+<h3>Margin Losses</h3>
+<p>The original contrastive loss <a href='#chopra_learning_2005' id='ref-chopra_learning_2005-1'>(Chopra et al., 2005)</a> maximizes similarity for examples <span class="math">\(z^+\)</span> and minimizes similarity for examples <span class="math">\(z^-\)</span>, until the similarity is below margin hyperparameter <span class="math">\(m\)</span>, via</p>
+<div class="math">$$L(z, z^+) = s(z, z^+); L(z, z^-) = \max( 0, m - s(z, z^-) ).$$</div>
+<p>The structure of this loss implies that <span class="math">\(z_1\)</span> and <span class="math">\(z_2\)</span> share a class if <span class="math">\(s(z_1, z_2) &lt; m\)</span> and otherwise they do not share a class. This margin hyperparameter can be challenging to tune for efficiency throughout the training process because it needs to be satisfiable but also provide <span class="math">\(z^-\)</span> samples within the margin in order to backpropagate the error.</p>
+<p>The triplet loss <a href='#schroff_facenet_2015' id='ref-schroff_facenet_2015-1'>(Schroff et al., 2015)</a> avoids this by using a margin between similarity values</p>
+<div class="math">$$L(z, z^+, z^-) = \max( 0, s(z, z^+) - s(z, z^-) + m).$$</div>
+<p>The triplet loss only updates a network when its loss is positive, so finding triplets satisfying that condition are important for learning efficiency.</p>
+<p>Lifted Structured Loss <a href='#oh_song_deep_2016' id='ref-oh_song_deep_2016-1'>(OhSong et al., 2016)</a> handles this by precomputing similarities for all pairs in a batch then selecting the <span class="math">\(z^-\)</span> with maximal similarity</p>
+<div class="math">$$L(z, z^+) = \max( 0, s(z, z^+) + m - \max [ \max_{z^-} s(z, z^-), \max_{z^-} s(z^+, z^-) ] ).$$</div>
+<p>The Batch Hard loss <a href='#hermans_defense_2017' id='ref-hermans_defense_2017-1'>(Hermans et al., 2017)</a> takes this even further by selecting <span class="math">\(z^+\)</span> with minimal similarity</p>
+<div class="math">$$L(z, z^+) = \max( 0, \min_{z^+} [ s(z, z^+) ] + m - \max_{z^-} [ s(z, z^-) ] ).$$</div>
+<p>The decision to compute the loss based on comparisons between <span class="math">\(z\)</span>, a single <span class="math">\(z^+\)</span>, and a single <span class="math">\(z^-\)</span> comes with advantages and disadvantages. These methods can be easier to adapt for learning with varying levels of supervision because complete knowledge of whether similarity should be maximized or minimized for each pair in the dataset is not required. However, these methods also make training efficiently difficult and provide relatively loose constraints on the embedding space.</p>
+<h3>Cross Entropy Losses</h3>
+<p>A common contrastive loss is the Information Noise Contrastive Estimation (InfoNCE) <a href='#oord_representation_2019' id='ref-oord_representation_2019-1'>(Oord et al., 2019)</a> loss</p>
+<div class="math">$$L(z, z^+, z^-_1, z^-_2, \ldots, z^-_n) = -\log \frac{ e^{s(z, z^+)} }{ e^{s(z, z^+)} + \sum_{i=1}^n e^{s(z, z^-_i)} }.$$</div>
+<p>InfoNCE is a cross entropy loss whose logits are similarities for <span class="math">\(z\)</span>. <span class="math">\(z^+\)</span> is a single embedding whose similarity with <span class="math">\(z\)</span> should be maximized while <span class="math">\(z^-_1, z^-_2, \ldots, z^-_n\)</span> are a set of <span class="math">\(n\)</span> embeddings whose similarity with <span class="math">\(z\)</span> should be minimized. The structure of this loss implies that <span class="math">\(z_1\)</span> shares a class with <span class="math">\(z_2\)</span> if no other embedding has greater similarity with <span class="math">\(z_1\)</span>.</p>
+<p>The choice of <span class="math">\(z^+\)</span> and <span class="math">\(z^-\)</span> sets varies across methods. The self-supervised InfoNCE loss chooses <span class="math">\(z^+\)</span> to be an embedding of an augmentation of the input that produced <span class="math">\(z\)</span> and <span class="math">\(z^-\)</span> to be the other inputs and augmentations in the batch. This is called instance discrimination because only augmentations of the same input instance have their similarity maximized.</p>
+<p>Supervised methods expand the definition of <span class="math">\(z^+\)</span> to also include embeddings which share a class with <span class="math">\(z\)</span>. The expectation of InfoNCE loss over choices of <span class="math">\(z^+\)</span> is used to jointly maximize their similarity to <span class="math">\(z\)</span>. The Supervised Contrastive (SupCon) loss <a href='#khosla_supervised_2020' id='ref-khosla_supervised_2020-2'>(Khosla et al., 2020)</a> uses all embeddings not currently set as <span class="math">\(z\)</span> or <span class="math">\(z^+\)</span> as <span class="math">\(z^-\)</span>, including embeddings that share a class with <span class="math">\(z\)</span> and therefore will also be used as <span class="math">\(z^+\)</span>. This creates loss terms that would minimize similarity between embeddings that share a class. Supervised Information Noise-Contrastive Estimation REvisited (SINCERE) loss <a href='#feeney_sincere_2024' id='ref-feeney_sincere_2024-2'>(Feeney and Hughes, 2024)</a> removes embeddings that share a class with <span class="math">\(z\)</span> from <span class="math">\(z^-\)</span>, leaving only embeddings with different classes. An additional margin hyperparameter can also be added to these losses <a href='#barbano_unbiased_2022' id='ref-barbano_unbiased_2022-1'>(Barbano et al., 2022)</a>, which allows for interpolation between the original losses and losses with the <span class="math">\(e^{s(z, z^+)}\)</span> term removed from the denominator.</p>
+<p>Considering a set of similarities during loss calculation allows the loss to implicitly perform hard negative mining <a href='#khosla_supervised_2020' id='ref-khosla_supervised_2020-3'>(Khosla et al., 2020)</a>, avoiding the challenge of selecting triplets required by a margin loss. The lack of a margin places strict constraints on the embedding space, as similarities are always being pushed towards the maximum or minimum. This enables analysis of embedding spaces that minimize the loss. For example, InfoNCE and SINCERE losses with cosine similarity are minimized by embedding spaces with clusters of inputs mapped to single points (maximizing similarity) that are uniformly distributed on the unit sphere (minimizing similarity) <a href='#wang_understanding_nodate' id='ref-wang_understanding_nodate-1'>(Wang and Isola, 2020)</a>.</p>
+<h2>Case Study: Contrastive Learning on a Hypersphere</h2>
+<p>Many modern contrastive learning techniques build off of the combination of cosine similarity and cross entropy losses. However, few papers have explored changing similarity functions and losses outside of the context of a more complex model.</p>
+<p><a href='#koishekenov_geometric_2023' id='ref-koishekenov_geometric_2023-2'>Koishekenov et al. (2023)</a> recently reported improved downstream performance by replacing cosine similarity with negative arc length for two self-supervised cross entropy losses. This change is motivated by the desire to use the geodesic distance on the embedding space, which in this case is a unit hypersphere. We investigate whether replacing cosine similarity with negative arc length similarity can improve performance with the SINCERE loss, which is supervised, and how each similarity affects the learned embedding space.</p>
+<h3>Supervised Learning Accuracy</h3>
+<p>We utilize the methodology of <a href='#feeney_sincere_2024' id='ref-feeney_sincere_2024-3'>Feeney and Hughes (2024)</a> to evaluate if the results of <a href='#koishekenov_geometric_2023' id='ref-koishekenov_geometric_2023-3'>Koishekenov et al. (2023)</a> generalize to supervised cross entropy losses. Specifically, we train models with SINCERE loss and each similarity function then evaluate the models with nearest neighbor classifiers on the test set.</p>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 5px;
+}
+</style>
+<table>
+  <tr>
+   <td>
+   </td>
+   <td colspan="2" ><strong>CIFAR-10</strong>
+   </td>
+   <td colspan="2" ><strong>CIFAR-100</strong>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Similarity</strong>
+   </td>
+   <td><strong>1NN</strong>
+   </td>
+   <td><strong>5NN</strong>
+   </td>
+   <td><strong>1NN</strong>
+   </td>
+   <td><strong>5NN</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>Cosine
+   </td>
+   <td>95.88
+   </td>
+   <td>95.91
+   </td>
+   <td>76.23
+   </td>
+   <td>76.13
+   </td>
+  </tr>
+  <tr>
+   <td>Negative Arc Length
+   </td>
+   <td>95.66
+   </td>
+   <td>95.65
+   </td>
+   <td>75.81
+   </td>
+   <td>76.41
+   </td>
+  </tr>
+</table>
+
+<p>We find no statistically significant difference based on the 95% confidence interval of the accuracy difference <a href='#foody_classification_2009' id='ref-foody_classification_2009-1'>(Foody, 2009)</a> from 1,000 iterations of test set bootstrapping. This aligns with the results in <a href='#feeney_sincere_2024' id='ref-feeney_sincere_2024-4'>Feeney and Hughes (2024)</a>, which found a similar lack of statistically significant results across choices of supervised contrastive cross entropy losses. This suggests that supervised learning accuracy is similar across choices of reasonable similarity functions and contrastive losses.</p>
+<h3>Supervised Learning Embedding Space</h3>
+<p>We also visualize the learned embedding space for each CIFAR-10 model. For each test set image, the similarity value is plotted for the closest training set image that shares a class (“Target”) and that does not share a class (“Noise”). This visualizes the 1-nearest neighbor decision process. Both similarity functions are plotted for each model, with the title denoting the similarity function used during training.</p>
+<p><img src="https://patrickfeeney.github.io/blog/learning_embedding_spaces_assets/cos_cifar10_all_cos.png">
+<img src="https://patrickfeeney.github.io/blog/learning_embedding_spaces_assets/cos_cifar10_all_arccos.png"></p>
+<p>The model trained with cosine similarity maximizes the similarity to target images well. There are a small number of noise images with near maximal similarity, but the majority are below 0.3 cosine similarity. Interestingly, the peaks seen in the noise similarity reflects the fact that individual classes will have different modes of their noise histograms.</p>
+<p><img src="https://patrickfeeney.github.io/blog/learning_embedding_spaces_assets/arccos_cifar10_all_cos.png">
+<img src="https://patrickfeeney.github.io/blog/learning_embedding_spaces_assets/arccos_cifar10_all_arccos.png"></p>
+<p>The model trained with negative arc length similarity does a better job of forcing target similarity values very close to 1 negative arc length similarity, but also has a notable number of target similarities near 0.5 negative arc length similarity. The noise distribution also reflects the fact that individual classes have different modes for their noise histograms, but in this case the modes are spread across more similarity values. Notably the peak for the horse class is very close to the max similarity due to a high similarity to the dog class, although they are still separated enough from the target similarities to not have an impact on accuracy.</p>
+<h3>Discussion</h3>
+<p>The choice of similarity function clearly has an effect on the learned embedding space despite a lack of statistically significant changes in accuracy. The cosine similarity histogram most cleanly aligns with the intuition that contrastive losses should be maximizing and minimizing similarities. In contrast, the negative arc length similarity histogram suggests similarity minimization is sacrificed for very consistent maximization. These differences in the learned embedding spaces could affect performance on downstream tasks such as transfer learning.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%&#64;#$&#64;#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%&#64;#$&#64;#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script><hr>
+<h2>Bibliography</h2>
+<p id='barbano_unbiased_2022'>Carlo&nbsp;Alberto Barbano, Benoit Dufumier, Enzo Tartaglione, Marco Grangetto, and Pietro Gori.
+Unbiased supervised contrastive learning.
+In <em>The Eleventh International Conference on Learning Representations</em>. September 2022.
+URL: <a href="https://openreview.net/forum?id=Ph5cJSfD2XN">https://openreview.net/forum?id=Ph5cJSfD2XN</a> (visited on 2024-05-28). <a class="cite-backref" href="#ref-barbano_unbiased_2022-1" title="Jump back to reference 1">↩</a></p>
+<p id='chen_simple_2020'>Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton.
+A simple framework for contrastive learning of visual representations.
+In <em>Proceedings of the 37th International Conference on Machine Learning</em>, 1597–1607. PMLR, November 2020.
+ISSN: 2640-3498.
+URL: <a href="https://proceedings.mlr.press/v119/chen20j.html">https://proceedings.mlr.press/v119/chen20j.html</a> (visited on 2023-02-07). <a class="cite-backref" href="#ref-chen_simple_2020-1" title="Jump back to reference 1">↩</a></p>
+<p id='chen_big_2020'>Ting Chen, Simon Kornblith, Kevin Swersky, Mohammad Norouzi, and Geoffrey&nbsp;E Hinton.
+Big self-supervised models are strong semi-supervised learners.
+In <em>Advances in Neural Information Processing Systems</em>, volume&nbsp;33, 22243–22255. Curran Associates, Inc., 2020.
+URL: <a href="https://proceedings.neurips.cc/paper/2020/hash/fcbc95ccdd551da181207c0c1400c655-Abstract.html">https://proceedings.neurips.cc/paper/2020/hash/fcbc95ccdd551da181207c0c1400c655-Abstract.html</a> (visited on 2023-07-28). <a class="cite-backref" href="#ref-chen_big_2020-1" title="Jump back to reference 1">↩</a></p>
+<p id='chen_empirical_2021'>Xinlei Chen, Saining Xie, and Kaiming He.
+An empirical study of training self-supervised vision transformers.
+In <em>Proceedings of the IEEE/CVF International Conference on Computer Vision</em>, 9640–9649. 2021.
+URL: <a href="https://openaccess.thecvf.com/content/ICCV2021/html/Chen_An_Empirical_Study_of_Training_Self-Supervised_Vision_Transformers_ICCV_2021_paper.html">https://openaccess.thecvf.com/content/ICCV2021/html/Chen_An_Empirical_Study_of_Training_Self-Supervised_Vision_Transformers_ICCV_2021_paper.html</a> (visited on 2023-02-09). <a class="cite-backref" href="#ref-chen_empirical_2021-1" title="Jump back to reference 1">↩</a></p>
+<p id='chopra_learning_2005'>S.&nbsp;Chopra, R.&nbsp;Hadsell, and Y.&nbsp;LeCun.
+Learning a similarity metric discriminatively, with application to face verification.
+In <em>2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR'05)</em>, volume&nbsp;1, 539–546 vol. 1. June 2005.
+ISSN: 1063-6919.
+URL: <a href="https://ieeexplore.ieee.org/abstract/document/1467314?casa_token=fbldvqZUi0gAAAAA:sIzRPsJfUiIGmux-j7j6aoov1PNxo944AwjVUdSzTh47MueCdAM3fLFyFf20oLu2lr33z_ph">https://ieeexplore.ieee.org/abstract/document/1467314?casa_token=fbldvqZUi0gAAAAA:sIzRPsJfUiIGmux-j7j6aoov1PNxo944AwjVUdSzTh47MueCdAM3fLFyFf20oLu2lr33z_ph</a> (visited on 2024-05-28), <a href="https://doi.org/10.1109/CVPR.2005.202">doi:10.1109/CVPR.2005.202</a>. <a class="cite-backref" href="#ref-chopra_learning_2005-1" title="Jump back to reference 1">↩</a></p>
+<p id='feeney_sincere_2024'>Patrick Feeney and Michael&nbsp;C. Hughes.
+Sincere: supervised information noise-contrastive estimation revisited.
+February 2024.
+arXiv:2309.14277 [cs].
+URL: <a href="http://arxiv.org/abs/2309.14277">http://arxiv.org/abs/2309.14277</a> (visited on 2024-03-20), <a href="https://doi.org/10.48550/arXiv.2309.14277">doi:10.48550/arXiv.2309.14277</a>. <a class="cite-backref" href="#ref-feeney_sincere_2024-1" title="Jump back to reference 1">↩</a><a class="cite-backref" href="#ref-feeney_sincere_2024-1" title="Jump back to reference 1"> <sup>1</sup> </a><a class="cite-backref" href="#ref-feeney_sincere_2024-2" title="Jump back to reference 2"><sup>2</sup> </a><a class="cite-backref" href="#ref-feeney_sincere_2024-3" title="Jump back to reference 3"><sup>3</sup> </a><a class="cite-backref" href="#ref-feeney_sincere_2024-4" title="Jump back to reference 4"><sup>4</sup> </a></p>
+<p id='foody_classification_2009'>Giles&nbsp;M. Foody.
+Classification accuracy comparison: hypothesis tests and the use of confidence intervals in evaluations of difference, equivalence and non-inferiority.
+<em>Remote Sensing of Environment</em>, 113(8):1658–1663, August 2009.
+URL: <a href="https://www.sciencedirect.com/science/article/pii/S0034425709000923">https://www.sciencedirect.com/science/article/pii/S0034425709000923</a> (visited on 2024-05-28), <a href="https://doi.org/10.1016/j.rse.2009.03.014">doi:10.1016/j.rse.2009.03.014</a>. <a class="cite-backref" href="#ref-foody_classification_2009-1" title="Jump back to reference 1">↩</a></p>
+<p id='grill_bootstrap_2020'>Jean-Bastien Grill, Florian Strub, Florent Altché, Corentin Tallec, Pierre Richemond, Elena Buchatskaya, Carl Doersch, Bernardo Avila&nbsp;Pires, Zhaohan Guo, Mohammad Gheshlaghi&nbsp;Azar, Bilal Piot, koray kavukcuoglu, Remi Munos, and Michal Valko.
+Bootstrap your own latent - a new approach to self-supervised learning.
+In <em>Advances in Neural Information Processing Systems</em>, volume&nbsp;33, 21271–21284. Curran Associates, Inc., 2020.
+URL: <a href="https://proceedings.neurips.cc/paper/2020/hash/f3ada80d5c4ee70142b17b8192b2958e-Abstract.html">https://proceedings.neurips.cc/paper/2020/hash/f3ada80d5c4ee70142b17b8192b2958e-Abstract.html</a> (visited on 2023-03-08). <a class="cite-backref" href="#ref-grill_bootstrap_2020-1" title="Jump back to reference 1">↩</a></p>
+<p id='he_momentum_2020'>Kaiming He, Haoqi Fan, Yuxin Wu, Saining Xie, and Ross Girshick.
+Momentum contrast for unsupervised visual representation learning.
+In <em>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition</em>, 9729–9738. 2020.
+URL: <a href="https://openaccess.thecvf.com/content_CVPR_2020/html/He_Momentum_Contrast_for_Unsupervised_Visual_Representation_Learning_CVPR_2020_paper.html">https://openaccess.thecvf.com/content_CVPR_2020/html/He_Momentum_Contrast_for_Unsupervised_Visual_Representation_Learning_CVPR_2020_paper.html</a> (visited on 2023-02-07). <a class="cite-backref" href="#ref-he_momentum_2020-1" title="Jump back to reference 1">↩</a></p>
+<p id='hermans_defense_2017'>Alexander Hermans, Lucas Beyer, and Bastian Leibe.
+In defense of the triplet loss for person re-identification.
+November 2017.
+arXiv:1703.07737 [cs].
+URL: <a href="http://arxiv.org/abs/1703.07737">http://arxiv.org/abs/1703.07737</a> (visited on 2024-05-28), <a href="https://doi.org/10.48550/arXiv.1703.07737">doi:10.48550/arXiv.1703.07737</a>. <a class="cite-backref" href="#ref-hermans_defense_2017-1" title="Jump back to reference 1">↩</a></p>
+<p id='khosla_supervised_2020'>Prannay Khosla, Piotr Teterwak, Chen Wang, Aaron Sarna, Yonglong Tian, Phillip Isola, Aaron Maschinot, Ce&nbsp;Liu, and Dilip Krishnan.
+Supervised contrastive learning.
+In <em>Advances in Neural Information Processing Systems</em>, volume&nbsp;33, 18661–18673. Curran Associates, Inc., 2020.
+URL: <a href="https://proceedings.neurips.cc/paper_files/paper/2020/hash/d89a66c7c80a29b1bdbab0f2a1a94af8-Abstract.html">https://proceedings.neurips.cc/paper_files/paper/2020/hash/d89a66c7c80a29b1bdbab0f2a1a94af8-Abstract.html</a> (visited on 2024-03-20). <a class="cite-backref" href="#ref-khosla_supervised_2020-1" title="Jump back to reference 1">↩</a><a class="cite-backref" href="#ref-khosla_supervised_2020-1" title="Jump back to reference 1"> <sup>1</sup> </a><a class="cite-backref" href="#ref-khosla_supervised_2020-2" title="Jump back to reference 2"><sup>2</sup> </a><a class="cite-backref" href="#ref-khosla_supervised_2020-3" title="Jump back to reference 3"><sup>3</sup> </a></p>
+<p id='koishekenov_geometric_2023'>Yeskendir Koishekenov, Sharvaree Vadgama, Riccardo Valperga, and Erik&nbsp;J. Bekkers.
+Geometric contrastive learning.
+In <em>2023 IEEE/CVF International Conference on Computer Vision Workshops (ICCVW)</em>, 206–215. Paris, France, October 2023. IEEE.
+URL: <a href="https://ieeexplore.ieee.org/document/10350974/">https://ieeexplore.ieee.org/document/10350974/</a> (visited on 2024-04-26), <a href="https://doi.org/10.1109/ICCVW60793.2023.00028">doi:10.1109/ICCVW60793.2023.00028</a>. <a class="cite-backref" href="#ref-koishekenov_geometric_2023-1" title="Jump back to reference 1">↩</a><a class="cite-backref" href="#ref-koishekenov_geometric_2023-1" title="Jump back to reference 1"> <sup>1</sup> </a><a class="cite-backref" href="#ref-koishekenov_geometric_2023-2" title="Jump back to reference 2"><sup>2</sup> </a><a class="cite-backref" href="#ref-koishekenov_geometric_2023-3" title="Jump back to reference 3"><sup>3</sup> </a></p>
+<p id='le-khac_contrastive_2020'>Phuc&nbsp;H. Le-Khac, Graham Healy, and Alan&nbsp;F. Smeaton.
+Contrastive representation learning: a framework and review.
+<em>IEEE Access</em>, 8:193907–193934, 2020.
+URL: <a href="https://ieeexplore.ieee.org/document/9226466/">https://ieeexplore.ieee.org/document/9226466/</a> (visited on 2023-11-09), <a href="https://doi.org/10.1109/ACCESS.2020.3031549">doi:10.1109/ACCESS.2020.3031549</a>. <a class="cite-backref" href="#ref-le-khac_contrastive_2020-1" title="Jump back to reference 1">↩</a></p>
+<p id='oh_song_deep_2016'>Hyun Oh&nbsp;Song, Yu&nbsp;Xiang, Stefanie Jegelka, and Silvio Savarese.
+Deep metric learning via lifted structured feature embedding.
+In <em>Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition</em>, 4004–4012. 2016.
+URL: <a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Song_Deep_Metric_Learning_CVPR_2016_paper.html">https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Song_Deep_Metric_Learning_CVPR_2016_paper.html</a> (visited on 2024-05-28). <a class="cite-backref" href="#ref-oh_song_deep_2016-1" title="Jump back to reference 1">↩</a></p>
+<p id='oord_representation_2019'>Aaron van&nbsp;den Oord, Yazhe Li, and Oriol Vinyals.
+Representation learning with contrastive predictive coding.
+January 2019.
+arXiv:1807.03748 [cs, stat].
+URL: <a href="http://arxiv.org/abs/1807.03748">http://arxiv.org/abs/1807.03748</a> (visited on 2024-05-28), <a href="https://doi.org/10.48550/arXiv.1807.03748">doi:10.48550/arXiv.1807.03748</a>. <a class="cite-backref" href="#ref-oord_representation_2019-1" title="Jump back to reference 1">↩</a></p>
+<p id='schroff_facenet_2015'>Florian Schroff, Dmitry Kalenichenko, and James Philbin.
+Facenet: a unified embedding for face recognition and clustering.
+In <em>Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition</em>, 815–823. 2015.
+URL: <a href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Schroff_FaceNet_A_Unified_2015_CVPR_paper.html">https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Schroff_FaceNet_A_Unified_2015_CVPR_paper.html</a> (visited on 2024-05-28). <a class="cite-backref" href="#ref-schroff_facenet_2015-1" title="Jump back to reference 1">↩</a></p>
+<p id='wang_understanding_nodate'>Tongzhou Wang and Phillip Isola.
+Understanding contrastive representation learning through alignment and uniformity on the hypersphere.
+2020. <a class="cite-backref" href="#ref-wang_understanding_nodate-1" title="Jump back to reference 1">↩</a></p>
+
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="mailto:patrickfeeney1225@gmail.com"><i class="fa fa-patrickfeeney1225@gmail.com-square fa-lg"></i> patrickfeeney1225@gmail.com</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="https://github.com/PatrickFeeney" target="_blank">GitHub</a>
+    </li>
+    <li class="list-group-item">
+      <a href="https://scholar.google.com/citations?user=GQY8QDYAAAAJ&hl=en" target="_blank">Google Scholar</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2024 Patrick Feeney
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://patrickfeeney.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://patrickfeeney.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://patrickfeeney.github.io/theme/js/respond.min.js"></script>
+
+
+
+
+</body>
+</html>
