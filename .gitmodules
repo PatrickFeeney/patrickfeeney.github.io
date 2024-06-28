@@ -4,3 +4,9 @@
 [submodule "submodules/pelican-plugins"]
 	path = submodules/pelican-plugins
 	url = git@github.com:getpelican/pelican-plugins.git
+[submodule "submodules/pelican-cite"]
+	path = submodules/pelican-cite
+	url = git@github.com:jacobgruber/pelican-cite.git
+[submodule "submodules/render-math"]
+	path = submodules/render-math
+	url = git@github.com:pelican-plugins/render-math.git

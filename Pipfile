@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 pelican = {extras = ["markdown"], version = "*"}
 ghp-import = "*"
+pelican-cite = {editable = true, path = "./submodules/pelican-cite"}
+beautifulsoup4 = "*"
+pelican-render-math = {editable = true, path = "./submodules/render-math"}
 
 [dev-packages]
 
