@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 pelican = {extras = ["markdown"], version = "*"}
 ghp-import = "*"
-pelican-cite = "*"
 
 [dev-packages]
 
