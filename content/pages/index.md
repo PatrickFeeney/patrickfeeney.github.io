@@ -5,7 +5,9 @@ URL:
 save_as: index.html
 ---
 
-<img width="20%" alt="Head shot of a man wearing a grey button up shirt." src="{static}profile_crop_cs.png">
+<img width="20%" alt="Head shot of a white man with black hair wearing a grey button up shirt." src="{static}profile_crop_cs.png">
+
+<!-- TODO improve bio -->
 
 I am a Ph.D. candidate at Tufts University researching how to use machine learning theory to create new deep learning methods with theoretic guarantees.
 My work spans traditional and deep computer vision, supervised learning, semi-supervised learning, generalized category discovery, and novelty detection.
