@@ -1,11 +1,12 @@
 ---
 Title: Learning Embedding Spaces with Metrics via Contrastive Learning
-Authors: Patrick Feeney
+Authors: Patrick Feeney, Michael C. Hughes
 Date: 2024-06-28 10:00
 publications_src: content/blog/learning_embedding_spaces_assets/learning_embedding_spaces.bib
 ---
 
-*Written for the blogpost track of the [ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024](https://gram-workshop.github.io/index.html).*
+*Published in the blogpost track of the [ELLIS Workshop on Geometry-grounded Representation Learning and Generative Modeling at ICML 2024](https://gram-workshop.github.io/index.html).
+Written by Patrick Feeney and Michael C. Hughes.*
 
 Contrastive learning encompasses a variety of methods that learn a constrained embedding space to solve a task. The embedding space is constrained such that a chosen metric, a function that measures the distance between two embeddings, satisfies some desired property, usually that small distances imply a shared class. Contrastive learning underlies many self-supervised methods, such as MoCo [@@he_momentum_2020], [@@chen_empirical_2021], SimCLR [@@chen_simple_2020], [@@chen_big_2020], and BYOL [@@grill_bootstrap_2020], as well as supervised methods such as SupCon [@@khosla_supervised_2020] and SINCERE [@@feeney_sincere_2024].
 
